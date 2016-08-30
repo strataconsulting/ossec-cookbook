@@ -43,6 +43,7 @@ chef_gem 'gyoku' do
   compile_time false if respond_to?(:compile_time)
 end
 
+# use default gyoku generated ossec.conf unless explicitly disabled
 file "#{node['ossec']['dir']}/etc/ossec.conf" do
   owner 'root'
   group 'ossec'
@@ -57,6 +58,8 @@ file "#{node['ossec']['dir']}/etc/ossec.conf" do
     conf = Chef::Mixin::DeepMerge.deep_merge(type_conf, all_conf)
     Chef::OSSEC::Helpers.ossec_to_xml('ossec_config' => conf)
   }
+
+  not_if node['ossec']['use_wrapped_ossec_conf'] == true
 end
 
 file "#{node['ossec']['dir']}/etc/shared/agent.conf" do
@@ -103,6 +106,7 @@ service 'ossec' do
 
   not_if do
     (node['ossec']['install_type'] != 'local' && !File.size?("#{node['ossec']['dir']}/etc/client.keys")) ||
-      (node['ossec']['install_type'] == 'agent' && node['ossec']['agent_server_ip'].nil?)
+      (node['ossec']['install_type'] == 'agent' && node['ossec']['agent_server_ip'].nil?) ||
+      (node['ossec']['use_wrapped_ossec_conf'] == true)
   end
 end

@@ -34,9 +34,13 @@ default['ossec']['agent_manager'] = value_for_platform_family(
   'default' => "#{node['ossec']['dir']}/contrib/ossec-batch-manager.pl"
 )
 
+# set the following attribute to true to manage ossec.conf via wrapper
+# this allows users to disable the Gyoku generated configuration feature implemented via:
+# https://github.com/yakara-ltd/ossec-cookbook/commit/b00b396306b59bf66e1eff50ea8d029179a8d15c
+default['ossec']['use_wrapped_ossec_conf'] = false
+
 # The following attributes are mapped to XML for ossec.conf using
 # Gyoku. See the README for details on how this works.
-
 default['ossec']['conf']['all']['syscheck']['frequency'] = 21_600
 default['ossec']['conf']['all']['rootcheck']['disabled'] = false
 default['ossec']['conf']['all']['rootcheck']['rootkit_files'] = "#{node['ossec']['dir']}/etc/shared/rootkit_files.txt"
