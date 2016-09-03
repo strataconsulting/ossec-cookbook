@@ -21,7 +21,6 @@
 default['ossec']['dir']             = '/var/ossec'
 default['ossec']['server_role']     = 'ossec_server'
 default['ossec']['server_env']      = nil
-default['ossec']['agent_server_ip'] = nil
 
 # data bag configuration
 default['ossec']['data_bag']['encrypted']  = false
@@ -54,7 +53,7 @@ default['ossec']['conf']['all']['rootcheck']['rootkit_trojans'] = "#{node['ossec
 end
 
 default['ossec']['conf']['server']['remote']['connection'] = 'secure'
-default['ossec']['conf']['agent']['client']['server-ip'] = node['ossec']['agent_server_ip']
+default['ossec']['conf']['agent']['client']['server-ip'] = nil
 
 # agent.conf is also populated with Gyoku but in a slightly different
 # way. We leave this blank by default because Chef is better at
