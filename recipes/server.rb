@@ -40,6 +40,7 @@ template '/usr/local/bin/dist-ossec-keys.sh' do
   mode 0755
   variables(ssh_hosts: ssh_hosts.sort)
   not_if { ssh_hosts.empty? }
+  notifies :run, 'execute[dist-ossec-keys]'
 end
 
 dbag_name = node['ossec']['data_bag']['name']
@@ -70,4 +71,9 @@ cron 'distribute-ossec-keys' do
   minute '0'
   command '/usr/local/bin/dist-ossec-keys.sh'
   only_if { ::File.exist?("#{node['ossec']['dir']}/etc/client.keys") }
+end
+
+execute 'dist-ossec-keys' do
+  action :nothing
+  command '/usr/local/bin/dist-ossec-keys.sh'
 end
