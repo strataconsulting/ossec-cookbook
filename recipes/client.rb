@@ -34,6 +34,12 @@ node.set['ossec']['agent_server_ip'] = ossec_server.first
 
 include_recipe 'ossec::install_agent'
 
+# GH-70: update ossec user shell
+user 'ossec' do
+  action :modify
+  shell '/bin/bash'
+end
+
 dbag_name = node['ossec']['data_bag']['name']
 dbag_item = node['ossec']['data_bag']['ssh']
 ossec_key = if node['ossec']['data_bag']['encrypted']
