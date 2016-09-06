@@ -60,6 +60,16 @@ template "#{node['ossec']['dir']}/.ssh/authorized_keys" do
   group 'ossec'
   mode '0600'
   variables(key: ossec_key['pubkey'])
+  notifies :run, 'execute[update-selinux-config]', :immediately
+end
+
+# update selinux to permit read of ossec authorized_keys file
+execute 'update-selinux-config' do
+  action :nothing
+  command "\
+    semanage fcontext -a -t ssh_home_t #{node['ossec']['dir']}/.ssh/authorized_keys && \
+    restorecon -v '/var/ossec/.ssh/authorized_keys' \
+  "
 end
 
 file "#{node['ossec']['dir']}/etc/client.keys" do
