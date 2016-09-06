@@ -54,4 +54,5 @@ execute 'update-selinux-config' do
     semanage fcontext -a -t ssh_home_t #{node['ossec']['dir']}/.ssh/authorized_keys && \
     restorecon -v '/var/ossec/.ssh/authorized_keys' \
   "
+  only_if "which sestatus && sestatus | grep status | grep enabled"
 end
