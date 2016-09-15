@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 
+node.default['ossec']['mode'] = 'client'
 ossec_server = []
 
 search_string = "role:#{node['ossec']['server_role']}"
@@ -40,27 +41,8 @@ user 'ossec' do
   shell '/bin/bash'
 end
 
-dbag_name = node['ossec']['data_bag']['name']
-dbag_item = node['ossec']['data_bag']['ssh']
-ossec_key = if node['ossec']['data_bag']['encrypted']
-              Chef::EncryptedDataBagItem.load(dbag_name, dbag_item)
-            else
-              data_bag_item(dbag_name, dbag_item)
-            end
-
-directory "#{node['ossec']['dir']}/.ssh" do
-  owner 'ossec'
-  group 'ossec'
-  mode '0750'
-end
-
-template "#{node['ossec']['dir']}/.ssh/authorized_keys" do
-  source 'ssh_key.erb'
-  owner 'ossec'
-  group 'ossec'
-  mode '0600'
-  variables(key: ossec_key['pubkey'])
-end
+# setup passwordless ssh between ossec clients & servers
+include_recipe 'ossec::_ssh_key'
 
 file "#{node['ossec']['dir']}/etc/client.keys" do
   owner 'ossec'
