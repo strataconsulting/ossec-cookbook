@@ -19,7 +19,16 @@
 
 case node['platform_family']
 when 'fedora', 'rhel'
+  # default yum-atomic cookbook fails on amazon platform
+  if node[:platform] == 'amazon'
+    %w(atomic atomic-testing).each do |repo|
+      node.override['yum'][repo]['mirrorlist'] = "https://updates.atomicorp.com/channels/mirrorlist/#{repo}/centos-7-$basearch"
+      node.override['yum'][repo]['includepkgs'] = 'inotify-tools ossec-*'
+    end
+  end
+
   include_recipe 'yum-atomic'
+
 when 'debian'
   package 'lsb-release'
 
