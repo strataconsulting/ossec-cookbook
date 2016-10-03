@@ -48,11 +48,13 @@ template "#{node['ossec']['dir']}/.ssh/id_rsa" do
 end
 
 # update selinux to permit read of ossec authorized_keys file
+# TODO: replace with chef-selinux-policy resource
+# https://github.com/BackSlasher/chef-selinuxpolicy
 execute 'update-selinux-config' do
   action :nothing
   command "\
     semanage fcontext -a -t ssh_home_t #{node['ossec']['dir']}/.ssh/authorized_keys && \
-    restorecon -v '/var/ossec/.ssh/authorized_keys' \
+    restorecon -v #{node['ossec']['dir']}/.ssh/authorized_keys' \
   "
   only_if "which sestatus && sestatus | grep status | grep enabled"
 end
