@@ -16,8 +16,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include_recipe 'chef-vault'
+# conditionally add selinux_policy cookbook to manage selinux
+case node['platform_family']
+# only need on rhel family presently
+when 'fedora', 'rhel'
+  # amazon not supported
+  include_recipe 'selinux_policy::install' unless node['platform'] == 'amazon'
+end
 
+include_recipe 'chef-vault'
 ossec_key = chef_vault_item('ossec', 'ssh')
 
 # create .ssh directory
@@ -34,7 +41,7 @@ template "#{node['ossec']['dir']}/.ssh/authorized_keys" do
   group 'ossec'
   mode '0600'
   variables(key: ossec_key['pubkey'])
-  notifies :run, 'execute[update-selinux-config]', :immediately
+  notifies :addormodify, "selinux_policy_fcontext[#{node['ossec']['dir']}/.ssh/authorized_keys]", :immediately
   only_if { node['ossec']['mode'] == 'client' }
 end
 
@@ -48,13 +55,8 @@ template "#{node['ossec']['dir']}/.ssh/id_rsa" do
 end
 
 # update selinux to permit read of ossec authorized_keys file
-# TODO: replace with chef-selinux-policy resource
-# https://github.com/BackSlasher/chef-selinuxpolicy
-execute 'update-selinux-config' do
+selinux_policy_fcontext "#{node['ossec']['dir']}/.ssh/authorized_keys" do
+  secontext 'ssh_home_t'
   action :nothing
-  command "\
-    semanage fcontext -a -t ssh_home_t #{node['ossec']['dir']}/.ssh/authorized_keys && \
-    restorecon -v #{node['ossec']['dir']}/.ssh/authorized_keys' \
-  "
   only_if "which sestatus && sestatus | grep status | grep enabled"
 end

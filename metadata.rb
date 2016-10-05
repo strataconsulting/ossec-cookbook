@@ -6,7 +6,7 @@ description      'Installs and configures ossec'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          '1.0.5'
 
-%w( apt chef-vault yum-atomic ).each do |pkg|
+%w( apt chef-vault yum-atomic selinux_policy).each do |pkg|
   depends pkg
 end
 
