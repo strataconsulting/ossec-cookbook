@@ -19,6 +19,9 @@
 
 include_recipe 'ossec::repository'
 
+# debian aws images missing required Perl package
+package 'libmime-tools-perl' if node['platform'] == 'debian'
+
 package 'ossec' do
   package_name value_for_platform_family('debian' => 'ossec-hids', 'default' => 'ossec-hids-server')
 end
